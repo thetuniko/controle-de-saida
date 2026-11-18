@@ -58,26 +58,32 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 flex flex-col">
 
-    <!-- TELA DE LOGIN (Incialmente visível se não autenticado) -->
+    <!-- TELA DE LOGIN / MODAL DE AUTENTICAÇÃO -->
     <div id="loginScreen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6">
-            <div class="text-center space-y-2">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6 relative">
+            
+            <!-- Botão de Fechar / Modo Visualizador -->
+            <button id="btnCloseLogin" title="Continuar como Visualizador" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="text-center space-y-2 pt-2">
                 <div class="w-16 h-16 rounded-2xl bg-brand-500 text-white flex items-center justify-center mx-auto text-2xl shadow-lg shadow-brand-500/30">
                     <i class="fa-solid fa-person-walking-arrow-right"></i>
                 </div>
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">Controle de Saída</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Entre com as suas credenciais corporativas</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Entre com as suas credenciais ou continue apenas como visualizador</p>
             </div>
 
             <form id="loginForm" class="space-y-4">
                 <div class="space-y-1">
                     <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Utilizador</label>
-                    <input type="text" id="loginUsername" required placeholder="Ex: admin ou editor" autocomplete="username"
+                    <input type="text" id="loginUsername" placeholder="Ex: admin ou editor" autocomplete="username"
                         class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:border-brand-500">
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Palavra-passe</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password"
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"
                         class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:border-brand-500">
                 </div>
                 <p id="loginError" class="hidden text-xs font-semibold text-rose-500 text-center"><i class="fa-solid fa-circle-exclamation mr-1"></i> Credenciais inválidas.</p>
@@ -86,8 +92,12 @@
                     Entrar no Sistema
                 </button>
             </form>
-            <div class="text-center text-[10px] text-slate-400">
-                Admin padrão: <code class="bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded font-mono">admin</code> / <code class="bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded font-mono">Pr1pr1213@</code>
+
+            <div class="border-t border-slate-100 dark:border-slate-700/60 pt-4 text-center">
+                <button type="button" id="btnViewerMode" class="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors flex items-center justify-center gap-1.5 mx-auto">
+                    <i class="fa-regular fa-eye"></i>
+                    <span>Continuar apenas como Visualizador</span>
+                </button>
             </div>
         </div>
     </div>
@@ -108,12 +118,12 @@
             <div class="flex items-center gap-2">
                 <!-- Info do Utilizador Logado -->
                 <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-xs font-medium">
-                    <i class="fa-solid fa-user-shield text-brand-500" id="userRoleIcon"></i>
-                    <span id="headerLoggedUser">Utilizador</span>
-                    <span id="headerRoleBadge" class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-brand-500 text-white">--</span>
+                    <i class="fa-solid fa-user text-brand-500" id="userRoleIcon"></i>
+                    <span id="headerLoggedUser">Visitante</span>
+                    <span id="headerRoleBadge" class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-slate-400 text-white">Visualizador</span>
                 </div>
 
-                <!-- Botão Gerir Utilizadores (Visível apenas para Administradores) -->
+                <!-- Botão Gerir Utilizadores (Visível apenas para Admins) -->
                 <button id="btnOpenUsersModal" title="Gerir Utilizadores" class="hidden items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-medium text-xs transition-colors">
                     <i class="fa-solid fa-users-gear"></i>
                     <span class="hidden md:inline">Utilizadores</span>
@@ -134,8 +144,9 @@
                     <i class="fa-solid fa-download"></i>
                     <span class="hidden sm:inline">Exportar</span>
                 </button>
-                <button id="btnLogout" title="Terminar Sessão" class="p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors">
-                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                <button id="btnLogout" title="Fazer Login / Mudar Utilizador" class="px-3 py-2 rounded-xl border border-brand-500 text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/50 font-semibold text-xs transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span class="hidden sm:inline">Entrar</span>
                 </button>
             </div>
         </div>
@@ -326,7 +337,6 @@
                 <button id="btnCloseUsersModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <!-- Formulário para Criar Novo Utilizador -->
             <form id="createUserForm" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <div class="space-y-1">
                     <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Novo Utilizador</label>
@@ -350,12 +360,9 @@
                 </div>
             </form>
 
-            <!-- Lista de Utilizadores Atuais -->
             <div class="space-y-2">
                 <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Utilizadores Registados</h4>
-                <div class="max-h-40 overflow-auto divide-y divide-slate-100 dark:divide-slate-700/50 border border-slate-100 dark:border-slate-700 rounded-xl p-2" id="usersListContainer">
-                    <!-- Preenchido via JS -->
-                </div>
+                <div class="max-h-40 overflow-auto divide-y divide-slate-100 dark:divide-slate-700/50 border border-slate-100 dark:border-slate-700 rounded-xl p-2" id="usersListContainer"></div>
             </div>
         </div>
     </div>
@@ -407,10 +414,8 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DA API (Aponta para o IP do computador servidor na rede)
-        // Se abrir localmente no mesmo PC, pode usar 'http://localhost:3000/api'
-        // Se acessar de outro PC da rede, substitua pelo IP do servidor (ex: 'http://192.168.1.50:3000/api')
-        const API_BASE = 'http://localhost:3000/api';
+        // CONFIGURAÇÃO DA API NA NUVEM (Ex: Servidor Python no Render + Supabase)
+        const API_BASE = 'https://seu-servidor.onrender.com/api';
 
         const REASONS = [
             { id: 'gov',      label: 'Instabilidade sistema GOV',               color: '#3b82f6', icon: 'fa-building-columns' },
@@ -423,7 +428,7 @@
         const UNKNOWN_REASON = { id: 'unknown', label: 'Não informado', color: '#94a3b8', icon: 'fa-circle-question' };
         function getReason(id) { return REASONS.find(r => r.id === id) || UNKNOWN_REASON; }
 
-        let currentUser = null; // { username, role }
+        let currentUser = null; // null = visualizador, ou { username, role }
         let logs = [];
         let selectedReason = null;
         let soundEnabled = true;
@@ -490,7 +495,7 @@
             } catch (err) {}
         }
 
-        // --- COMUNICAÇÃO COM O SERVIDOR PYTHON ---
+        // --- COMUNICAÇÃO COM O SERVIDOR ---
         async function fetchLogs() {
             try {
                 const res = await fetch(`${API_BASE}/logs`);
@@ -534,11 +539,17 @@
             }
         }
 
-        // --- LOGIN ---
+        // --- LOGIN & MODO VISUALIZADOR ---
         $('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const u = $('loginUsername').value.trim();
             const p = $('loginPassword').value;
+
+            if (!u || !p) {
+                $('loginError').textContent = "Preencha o utilizador e palavra-passe.";
+                $('loginError').classList.remove('hidden');
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/login`, {
@@ -549,40 +560,65 @@
                 const data = await res.json();
                 if (data.success) {
                     currentUser = { username: data.username, role: data.role };
-                    $('loginScreen').classList.add('hidden');
+                    closeModal($('loginScreen'));
                     setupUserPermissions();
-                    fetchLogs();
                     showToast(`Sessão iniciada como ${currentUser.username} (${currentUser.role})`);
                 } else {
+                    $('loginError').textContent = "Credenciais inválidas.";
                     $('loginError').classList.remove('hidden');
                 }
             } catch (err) {
-                $('loginError').textContent = "Servidor indisponível.";
+                $('loginError').textContent = "Servidor indisponível na nuvem.";
                 $('loginError').classList.remove('hidden');
             }
         });
 
+        // Botão Fechar / Continuar como Visualizador
+        $('btnCloseLogin').addEventListener('click', () => {
+            currentUser = null; // Modo visualizador
+            closeModal($('loginScreen'));
+            setupUserPermissions();
+            showToast('Modo Visualizador ativado.');
+        });
+
+        $('btnViewerMode').addEventListener('click', () => {
+            currentUser = null; // Modo visualizador
+            closeModal($('loginScreen'));
+            setupUserPermissions();
+            showToast('Modo Visualizador ativado.');
+        });
+
         $('btnLogout').addEventListener('click', () => {
-            currentUser = null;
+            // Abre o popup de login novamente para permitir entrar
             $('loginUsername').value = '';
             $('loginPassword').value = '';
             $('loginError').classList.add('hidden');
-            $('loginScreen').classList.remove('hidden');
+            openModal($('loginScreen'));
         });
 
         function setupUserPermissions() {
-            $('headerLoggedUser').textContent = currentUser.username;
-            $('headerRoleBadge').textContent = currentUser.role;
-            if (currentUser.role === 'admin') {
-                $('btnOpenUsersModal').classList.remove('hidden');
-                $('btnOpenUsersModal').classList.add('flex');
-                $('headerRoleBadge').className = "px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-purple-600 text-white";
-                $('userRoleIcon').className = "fa-solid fa-user-shield text-purple-500";
+            if (currentUser) {
+                $('headerLoggedUser').textContent = currentUser.username;
+                $('headerRoleBadge').textContent = currentUser.role;
+                $('btnLogout').innerHTML = '<i class="fa-solid fa-right-from-bracket"></i><span class="hidden sm:inline">Sair</span>';
+                if (currentUser.role === 'admin') {
+                    $('btnOpenUsersModal').classList.remove('hidden');
+                    $('btnOpenUsersModal').classList.add('flex');
+                    $('headerRoleBadge').className = "px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-purple-600 text-white";
+                    $('userRoleIcon').className = "fa-solid fa-user-shield text-purple-500";
+                } else {
+                    $('btnOpenUsersModal').classList.add('hidden');
+                    $('btnOpenUsersModal').classList.remove('flex');
+                    $('headerRoleBadge').className = "px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-brand-500 text-white";
+                    $('userRoleIcon').className = "fa-solid fa-user text-brand-500";
+                }
             } else {
+                $('headerLoggedUser').textContent = 'Visitante';
+                $('headerRoleBadge').textContent = 'Visualizador';
+                $('headerRoleBadge').className = "px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-slate-400 text-white";
+                $('userRoleIcon').className = "fa-solid fa-eye text-slate-400";
                 $('btnOpenUsersModal').classList.add('hidden');
-                $('btnOpenUsersModal').classList.remove('flex');
-                $('headerRoleBadge').className = "px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-brand-500 text-white";
-                $('userRoleIcon').className = "fa-solid fa-user text-brand-500";
+                $('btnLogout').innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span class="hidden sm:inline">Entrar</span>';
             }
         }
 
@@ -634,6 +670,10 @@
         });
 
         $('btnOpenUsersModal').addEventListener('click', () => {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Acesso restrito a administradores.', 'fa-circle-exclamation');
+                return;
+            }
             loadUsersList();
             openModal($('usersModal'));
         });
@@ -659,6 +699,12 @@
         }
 
         function incrementCounter() {
+            if (!currentUser) {
+                playTone('error');
+                showToast('Modo Visualizador: Faça login para registar saídas.', 'fa-lock');
+                openModal($('loginScreen'));
+                return;
+            }
             if (!selectedReason) {
                 playTone('error');
                 showToast('Selecione o motivo da saída antes de registar.', 'fa-circle-exclamation');
@@ -682,6 +728,12 @@
         }
 
         function decrementCounter() {
+            if (!currentUser) {
+                playTone('error');
+                showToast('Modo Visualizador: Faça login para desfazer.', 'fa-lock');
+                openModal($('loginScreen'));
+                return;
+            }
             if (count <= 0) {
                 showToast('O contador de hoje já está em zero!', 'fa-circle-exclamation');
                 return;
@@ -699,6 +751,7 @@
         }
 
         function resetCounter() {
+            if (!currentUser) return;
             const newLog = {
                 id: newId(),
                 timestamp: new Date().toISOString(),
@@ -713,11 +766,12 @@
             showToast('Contador de hoje redefinido para zero.', 'fa-rotate-left');
         }
 
-        // LIMPAR HISTÓRICO (Restrito a Administradores)
+        // LIMPAR HISTÓRICO (Restrito a Admins)
         $('btnClearLogs').addEventListener('click', () => {
-            if (currentUser.role !== 'admin') {
-                showToast('Acesso negado: Apenas administradores podem limpar o histórico.', 'fa-circle-exclamation');
+            if (!currentUser || currentUser.role !== 'admin') {
                 playTone('error');
+                showToast('Acesso negado: Apenas administradores podem limpar o histórico.', 'fa-lock');
+                openModal($('loginScreen'));
                 return;
             }
             $('clearAdminPassword').value = '';
@@ -728,7 +782,6 @@
 
         $('btnConfirmClear').addEventListener('click', async () => {
             const p = $('clearAdminPassword').value;
-            // Valida a senha admin fazendo um login check rápido ou comparando
             try {
                 const res = await fetch(`${API_BASE}/login`, {
                     method: 'POST',
@@ -929,6 +982,15 @@
             }).join('');
         }
 
+        window.deleteLogFromServer = function(id) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Apenas administradores podem remover registos individuais.', 'fa-lock');
+                openModal($('loginScreen'));
+                return;
+            }
+            deleteLogFromServer(id);
+        };
+
         function renderHourlyChart(targetLogs) {
             const hours = Array.from({ length: 24 }, (_, i) => i);
             const counts = hours.map(h => targetLogs.filter(l => new Date(l.timestamp).getHours() === h).length);
@@ -964,7 +1026,14 @@
         // Eventos
         $('btnIncrement').addEventListener('click', incrementCounter);
         $('btnDecrement').addEventListener('click', decrementCounter);
-        $('btnResetModal').addEventListener('click', () => openModal($('resetModal')));
+        $('btnResetModal').addEventListener('click', () => {
+            if (!currentUser) {
+                showToast('Modo Visualizador: Faça login para zerar.', 'fa-lock');
+                openModal($('loginScreen'));
+                return;
+            }
+            openModal($('resetModal'));
+        });
         $('btnConfirmReset').addEventListener('click', resetCounter);
         $('btnCancelReset').addEventListener('click', () => closeModal($('resetModal')));
         $('btnCancelClear').addEventListener('click', () => closeModal($('clearModal')));
@@ -993,13 +1062,20 @@
         });
 
         window.addEventListener('keydown', (e) => {
-            if (!currentUser) return; // Se não estiver logado, não dispara atalhos
+            if (!currentUser) return; 
             const tag = document.activeElement ? document.activeElement.tagName : '';
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
 
             if (e.key === 'Enter' && tag !== 'BUTTON') { e.preventDefault(); incrementCounter(); }
             if (e.key >= '1' && e.key <= '6') { e.preventDefault(); selectReason(REASONS[parseInt(e.key)-1].id); }
             if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); decrementCounter(); }
+        });
+
+        window.addEventListener('load', () => {
+            setupUserPermissions();
+            fetchLogs();
+            // Atualiza os logs automaticamente a cada 10 segundos para ver dados em tempo real na nuvem
+            setInterval(fetchLogs, 10000);
         });
     </script>
 </body>
